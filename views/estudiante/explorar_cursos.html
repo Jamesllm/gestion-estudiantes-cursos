@@ -1,0 +1,105 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Explorar Cursos{% endblock %}
+{% block page_title %}Explorar Cursos Disponibles{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Búsqueda -->
+    <div class="card bg-base-100 shadow-xl">
+        <div class="card-body">
+            <div class="form-control">
+                <div class="input-group">
+                    <input type="text" id="searchInput" placeholder="Buscar cursos..." class="input input-bordered w-full" />
+                    <button class="btn btn-square btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid de Cursos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cursosGrid">
+        {% for curso in cursos_disponibles %}
+        <div class="card bg-base-100 shadow-xl hover:shadow-2xl transition curso-card" data-nombre="{{ curso.nombre|lower }}" data-codigo="{{ curso.codigo|lower }}">
+            <div class="card-body">
+                <div class="flex items-start justify-between">
+                    <span class="badge badge-primary badge-lg">{{ curso.codigo }}</span>
+                    <span class="badge badge-outline gap-1">
+                        <i class="fas fa-star"></i>
+                        {{ curso.creditos }}
+                    </span>
+                </div>
+                
+                <h2 class="card-title text-lg mt-2">{{ curso.nombre }}</h2>
+                <p class="text-sm text-gray-500 line-clamp-3">{{ curso.descripcion if curso.descripcion else 'Sin descripción disponible' }}</p>
+                
+                <div class="divider my-2"></div>
+                
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <i class="fas fa-users"></i>
+                    <span>{{ curso.total_estudiantes }} estudiantes</span>
+                </div>
+
+                <div class="card-actions justify-end mt-4">
+                    {% if curso.matriculado %}
+                    <button class="btn btn-success btn-sm gap-2" disabled>
+                        <i class="fas fa-check"></i>
+                        Ya Matriculado
+                    </button>
+                    {% else %}
+                    <button onclick="matricularCurso({{ curso.id }}, '{{ curso.nombre }}')" class="btn btn-primary btn-sm gap-2">
+                        <i class="fas fa-plus"></i>
+                        Matricularme
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Búsqueda en tiempo real
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.curso-card');
+        
+        cards.forEach(card => {
+            const nombre = card.dataset.nombre;
+            const codigo = card.dataset.codigo;
+            
+            if (nombre.includes(searchTerm) || codigo.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+
+    function matricularCurso(cursoId, cursoNombre) {
+        if (confirm(`¿Deseas matricularte en "${cursoNombre}"?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/estudiante/matricular';
+            
+            const inputCurso = document.createElement('input');
+            inputCurso.type = 'hidden';
+            inputCurso.name = 'curso_id';
+            inputCurso.value = cursoId;
+            
+            const inputFecha = document.createElement('input');
+            inputFecha.type = 'hidden';
+            inputFecha.name = 'fecha_matricula';
+            inputFecha.value = new Date().toISOString().split('T')[0];
+            
+            form.appendChild(inputCurso);
+            form.appendChild(inputFecha);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

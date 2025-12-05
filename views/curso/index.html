@@ -1,0 +1,94 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Cursos - Sistema de Gestión{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header con estadísticas -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Total Cursos</p>
+                    <h3 class="text-3xl font-bold text-blue-600 mt-2">{{ cursos|length }}</h3>
+                </div>
+                <div class="bg-blue-100 p-4 rounded-lg">
+                    <i class="fas fa-book text-2xl text-blue-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 card">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-slate-600 text-sm font-medium">Total Créditos</p>
+                    <h3 class="text-3xl font-bold text-amber-600 mt-2">
+                        {% set total_creditos = namespace(value=0) %}
+                        {% for curso in cursos %}
+                        {% set total_creditos.value = total_creditos.value + curso.creditos %}
+                        {% endfor %}
+                        {{ total_creditos.value }}
+                    </h3>
+                </div>
+                <div class="bg-amber-100 p-4 rounded-lg">
+                    <i class="fas fa-award text-2xl text-amber-600"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 card">
+            <button onclick="window.location.href='/cursos/create'"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-lg transition flex items-center justify-center gap-2">
+                <i class="fas fa-plus"></i>
+                Nuevo Curso
+            </button>
+        </div>
+    </div>
+
+    <!-- Grid de cursos -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for curso in cursos %}
+        <div
+            class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden card hover:shadow-md transition">
+            <div class="bg-blue-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-white font-bold text-lg">{{ curso.codigo }}</span>
+                    <span class="bg-white bg-opacity-20 text-white px-3 py-1 rounded-md text-sm font-semibold">
+                        {{ curso.creditos }} créditos
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">{{ curso.nombre }}</h3>
+                <p class="text-slate-600 text-sm mb-4 line-clamp-3">
+                    {{ curso.descripcion if curso.descripcion else 'Sin descripción' }}
+                </p>
+
+                <div class="flex items-center text-sm text-slate-500 mb-4">
+                    <i class="fas fa-users mr-2"></i>
+                    {{ curso.total_estudiantes }} estudiantes matriculados
+                </div>
+
+                <div class="flex space-x-2">
+                    <a href="/cursos/{{ curso.id }}/edit"
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition text-center flex items-center justify-center gap-2">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button onclick="confirmDelete('/cursos/{{ curso.id }}/delete', '{{ curso.nombre }}')"
+                        class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-3 bg-white rounded-lg shadow-sm border border-slate-200 p-12 text-center">
+            <i class="fas fa-book-open text-6xl text-slate-300 mb-4"></i>
+            <p class="text-slate-500 text-xl font-medium">No hay cursos registrados</p>
+            <p class="text-slate-400 text-sm mt-2">Comienza agregando tu primer curso</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

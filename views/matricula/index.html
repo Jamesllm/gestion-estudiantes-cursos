@@ -1,0 +1,173 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Matrículas - Sistema de Gestión{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <h2 class="text-3xl font-bold text-slate-800 mb-8 flex items-center gap-2">
+        <i class="fas fa-clipboard-list text-blue-600"></i> Gestión de Matrículas
+    </h2>
+
+    <!-- Formulario de matrícula -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-8 mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+            {% if action == 'edit' %}
+            <i class="fas fa-edit text-blue-600"></i> Editar Matrícula
+            {% else %}
+            <i class="fas fa-plus text-blue-600"></i> Nueva Matrícula
+            {% endif %}
+        </h3>
+
+        <form method="POST"
+            action="{% if action == 'edit' %}/matriculas/{{ matricula_edit.id }}/update{% else %}/matriculas/create{% endif %}">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="space-y-2">
+                    <label for="estudiante_id" class="block text-sm font-semibold text-slate-700">
+                        Estudiante <span class="text-red-600">*</span>
+                    </label>
+                    <select id="estudiante_id" name="estudiante_id" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <option value="">Seleccionar...</option>
+                        {% for estudiante in estudiantes %}
+                        <option value="{{ estudiante.id }}" {% if matricula_edit and
+                            matricula_edit.estudiante_id==estudiante.id %}selected{% endif %}>
+                            {{ estudiante.nombre }} {{ estudiante.apellido }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="curso_id" class="block text-sm font-semibold text-slate-700">
+                        Curso <span class="text-red-600">*</span>
+                    </label>
+                    <select id="curso_id" name="curso_id" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <option value="">Seleccionar...</option>
+                        {% for curso in cursos %}
+                        <option value="{{ curso.id }}" {% if matricula_edit and matricula_edit.curso_id==curso.id
+                            %}selected{% endif %}>
+                            {{ curso.codigo }} - {{ curso.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="fecha_matricula" class="block text-sm font-semibold text-slate-700">
+                        Fecha <span class="text-red-600">*</span>
+                    </label>
+                    <input type="date" id="fecha_matricula" name="fecha_matricula"
+                        value="{% if matricula_edit %}{{ matricula_edit.fecha_matricula }}{% endif %}" required
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+
+                <div class="space-y-2">
+                    <label for="estado" class="block text-sm font-semibold text-slate-700">Estado</label>
+                    <select id="estado" name="estado"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <option value="activo" {% if matricula_edit and matricula_edit.estado=='activo' %}selected{%
+                            endif %}>Activo</option>
+                        <option value="inactivo" {% if matricula_edit and matricula_edit.estado=='inactivo' %}selected{%
+                            endif %}>Inactivo</option>
+                        <option value="completado" {% if matricula_edit and matricula_edit.estado=='completado'
+                            %}selected{% endif %}>Completado</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex space-x-4 mt-6">
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg transition flex items-center gap-2">
+                    <i class="fas fa-check"></i>
+                    {% if action == 'edit' %}Actualizar{% else %}Matricular{% endif %}
+                </button>
+                {% if action == 'edit' %}
+                <a href="/matriculas"
+                    class="bg-slate-200 text-slate-700 px-8 py-3 rounded-lg hover:bg-slate-300 transition flex items-center gap-2">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Tabla de matrículas -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <h3 class="text-xl font-semibold text-slate-800">Listado de Matrículas</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">ID</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Estudiante</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Curso</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Créditos</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Fecha</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-slate-600 uppercase">Estado</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-slate-600 uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    {% for matricula in matriculas %}
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-md bg-slate-100 text-slate-700">
+                                #{{ matricula.id }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                            {{ matricula.estudiante_nombre }} {{ matricula.estudiante_apellido }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-slate-800">
+                            <div class="font-medium text-blue-600">{{ matricula.curso_codigo }}</div>
+                            <div class="text-slate-500 text-xs">{{ matricula.curso_nombre }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-md text-xs font-semibold">
+                                {{ matricula.curso_creditos }} créditos
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {{ matricula.fecha_matricula }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-md 
+                                         {% if matricula.estado == 'activo' %}bg-emerald-100 text-emerald-700
+                                         {% elif matricula.estado == 'completado' %}bg-blue-100 text-blue-700
+                                         {% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ matricula.estado }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <div class="flex justify-center space-x-2">
+                                <a href="/matriculas/{{ matricula.id }}/edit"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition text-xs flex items-center gap-1">
+                                    <i class="fas fa-edit"></i> Editar
+                                </a>
+                                <button
+                                    onclick="confirmDelete('/matriculas/{{ matricula.id }}/delete', 'Matrícula #{{ matricula.id }}')"
+                                    class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition text-xs flex items-center gap-1">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-12 text-center">
+                            <i class="fas fa-clipboard-list text-6xl text-slate-300 mb-4"></i>
+                            <p class="text-slate-500 text-lg font-medium">No hay matrículas registradas</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

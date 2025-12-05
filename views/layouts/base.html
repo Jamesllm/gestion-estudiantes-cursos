@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema Educativo{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.4.19/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --primary-dark: #1e293b;
+            --secondary-color: #475569;
+            --accent-color: #3b82f6;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+        }
+
+        .sidebar-menu a {
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            transform: translateX(3px);
+        }
+
+        .sidebar-menu a.active {
+            background-color: #dbeafe;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .stat-card {
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .navbar {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drawer-side {
+            border-right: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="drawer lg:drawer-open">
+        <input id="drawer-toggle" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content flex flex-col">
+            <!-- Navbar -->
+            <div class="w-full navbar bg-white shadow-sm">
+                <div class="flex-none lg:hidden">
+                    <label for="drawer-toggle" class="btn btn-square btn-ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            class="inline-block w-6 h-6 stroke-current">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </label>
+                </div>
+                <div class="flex-1 px-2 mx-2">
+                    <span class="text-lg font-semibold text-slate-800">{% block page_title %}Dashboard{% endblock
+                        %}</span>
+                </div>
+                <div class="flex-none">
+                    <div class="dropdown dropdown-end">
+                        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                            <div
+                                class="w-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold">
+                                <span class="text-sm">{{ user.nombre[0] if user.nombre else 'U' }}</span>
+                            </div>
+                        </label>
+                        <ul tabindex="0"
+                            class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-white rounded-lg w-52 border border-slate-200">
+                            <li class="menu-title">
+                                <span class="text-slate-700 font-semibold">{{ user.nombre }} {{ user.apellido }}</span>
+                            </li>
+                            <li><a class="text-slate-600 hover:text-blue-600"><i class="fas fa-user mr-2"></i>Perfil</a>
+                            </li>
+                            <li><a class="text-slate-600 hover:text-blue-600"><i
+                                        class="fas fa-cog mr-2"></i>Configuración</a></li>
+                            <li><a href="/logout" class="text-red-600 hover:bg-red-50"><i
+                                        class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page content -->
+            <main class="p-6 bg-slate-50 min-h-screen">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="drawer-side">
+            <label for="drawer-toggle" class="drawer-overlay"></label>
+            <div class="menu p-4 w-80 min-h-full bg-white text-slate-700">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 px-4 py-6 border-b border-slate-200">
+                    <div class="flex items-center justify-center bg-blue-600 text-white rounded-lg w-12 h-12">
+                        <i class="fas fa-graduation-cap text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800">SchoolHub</h1>
+                        <p class="text-xs text-slate-500">Sistema de Gestión Educativa</p>
+                    </div>
+                </div>
+                <!-- Menu -->
+                <ul class="sidebar-menu mt-6 space-y-1">
+                    {% if user.rol == 'admin' %}
+                    <li><a href="/dashboard" class="{% if request_path == '/dashboard' %}active{% endif %}">
+                            <i class="fas fa-chart-line mr-3 text-base"></i> Dashboard
+                        </a></li>
+                    <li><a href="/estudiantes" class="{% if '/estudiantes' in request_path %}active{% endif %}">
+                            <i class="fas fa-user-graduate mr-3 text-base"></i> Estudiantes
+                        </a></li>
+                    <li><a href="/cursos" class="{% if '/cursos' in request_path %}active{% endif %}">
+                            <i class="fas fa-book mr-3 text-base"></i> Cursos
+                        </a></li>
+                    <li><a href="/matriculas" class="{% if '/matriculas' in request_path %}active{% endif %}">
+                            <i class="fas fa-clipboard-list mr-3 text-base"></i> Matrículas
+                        </a></li>
+
+                    <li class="menu-title mt-6 px-4"><span
+                            class="text-slate-500 text-xs font-semibold uppercase tracking-wider">Reportes</span></li>
+                    <li><a href="/export/estudiantes/excel" target="_blank">
+                            <i class="fas fa-file-excel mr-3 text-base text-green-600"></i> Exportar Estudiantes (Excel)
+                        </a></li>
+                    <li><a href="/export/cursos/excel" target="_blank">
+                            <i class="fas fa-file-excel mr-3 text-base text-green-600"></i> Exportar Cursos (Excel)
+                        </a></li>
+                    <li><a href="/export/estudiantes/pdf" target="_blank">
+                            <i class="fas fa-file-pdf mr-3 text-base text-red-600"></i> Exportar PDF
+                        </a></li>
+                    {% else %}
+                    <li><a href="/dashboard" class="{% if request_path == '/dashboard' %}active{% endif %}">
+                            <i class="fas fa-home mr-3 text-base"></i> Inicio
+                        </a></li>
+                    <li><a href="/mis-cursos" class="{% if '/mis-cursos' in request_path %}active{% endif %}">
+                            <i class="fas fa-book-open mr-3 text-base"></i> Mis Cursos
+                        </a></li>
+                    <li><a href="/explorar-cursos" class="{% if '/explorar-cursos' in request_path %}active{% endif %}">
+                            <i class="fas fa-search mr-3 text-base"></i> Explorar Cursos
+                        </a></li>
+                    {% endif %}
+                </ul>
+
+                <!-- User info at bottom -->
+                <div class="mt-auto pt-6 border-t border-slate-200">
+                    <div class="flex items-center space-x-3 px-4">
+                        <div
+                            class="flex items-center justify-center bg-slate-600 text-white rounded-full w-10 h-10 font-semibold">
+                            <span class="text-sm">{{ user.nombre[0] if user.nombre else 'U' }}</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-semibold text-sm text-slate-800">{{ user.nombre }} {{ user.apellido }}</p>
+                            <p class="text-xs text-slate-500 capitalize">{{ user.rol }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function confirmDelete(url, itemName) {
+            if (confirm(`¿Estás seguro de eliminar "${itemName}"?`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Gestión de datos de usuario en localStorage
+        (function () {
+            // Limpiar datos corruptos o inválidos
+            function cleanupInvalidUserData() {
+                const userDataStr = localStorage.getItem('currentUser');
+                if (userDataStr) {
+                    try {
+                        const userData = JSON.parse(userDataStr);
+                        // Verificar si los datos son válidos
+                        if (!userData.nombre || userData.nombre === 'undefined' ||
+                            !userData.apellido || userData.apellido === 'undefined' ||
+                            !userData.rol || userData.rol === 'undefined') {
+                            console.warn('⚠️ Datos de usuario corruptos detectados, limpiando...');
+                            localStorage.removeItem('currentUser');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error al validar datos de usuario, limpiando...', error);
+                        localStorage.removeItem('currentUser');
+                    }
+                }
+            }
+
+            // Ejecutar limpieza al cargar
+            cleanupInvalidUserData();
+
+            // Guardar datos del usuario en localStorage cuando se carga la página
+            {% if user and user.nombre and user.apellido and user.rol %}
+            const userData = {
+                nombre: "{{ user.nombre }}",
+                apellido: "{{ user.apellido }}",
+                rol: "{{ user.rol }}",
+                email: "{{ user.get('email', '') }}",
+                estudiante_id: {{ user.get('estudiante_id', 'null')
+        }},
+        username: "{{ user.get('username', '') }}"
+            };
+
+        // Validar que los datos no sean undefined antes de guardar
+        if (userData.nombre && userData.nombre !== 'undefined' &&
+            userData.apellido && userData.apellido !== 'undefined' &&
+            userData.rol && userData.rol !== 'undefined') {
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            console.log('✅ Datos de usuario guardados en localStorage:', userData);
+        } else {
+            console.warn('⚠️ Datos de usuario inválidos, no se guardarán en localStorage');
+        }
+        {% endif %}
+
+        // Función para actualizar la UI con datos del localStorage
+        function updateUIWithUserData() {
+            const userDataStr = localStorage.getItem('currentUser');
+            if (!userDataStr) {
+                console.warn('⚠️ No hay datos de usuario en localStorage');
+                return;
+            }
+
+            try {
+                const userData = JSON.parse(userDataStr);
+                console.log('📦 Datos de usuario cargados desde localStorage:', userData);
+
+                // Actualizar avatar en navbar
+                const navbarAvatar = document.querySelector('.navbar .avatar span');
+                if (navbarAvatar && userData.nombre) {
+                    navbarAvatar.textContent = userData.nombre.charAt(0).toUpperCase();
+                }
+
+                // Actualizar nombre en dropdown del navbar
+                const navbarUserName = document.querySelector('.navbar .menu-title span');
+                if (navbarUserName && userData.nombre && userData.apellido) {
+                    navbarUserName.textContent = `${userData.nombre} ${userData.apellido}`;
+                }
+
+                // Actualizar avatar en sidebar
+                const sidebarAvatar = document.querySelector('.drawer-side .avatar span');
+                if (sidebarAvatar && userData.nombre) {
+                    sidebarAvatar.textContent = userData.nombre.charAt(0).toUpperCase();
+                }
+
+                // Actualizar nombre en sidebar
+                const sidebarUserName = document.querySelector('.drawer-side .border-t .font-semibold');
+                if (sidebarUserName && userData.nombre && userData.apellido) {
+                    sidebarUserName.textContent = `${userData.nombre} ${userData.apellido}`;
+                }
+
+                // Actualizar rol en sidebar
+                const sidebarUserRole = document.querySelector('.drawer-side .border-t .text-gray-500');
+                if (sidebarUserRole && userData.rol) {
+                    sidebarUserRole.textContent = userData.rol;
+                }
+
+            } catch (error) {
+                console.error('❌ Error al parsear datos de usuario:', error);
+            }
+        }
+
+        // Actualizar UI cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateUIWithUserData);
+        } else {
+            updateUIWithUserData();
+        }
+
+        // Limpiar localStorage al cerrar sesión
+        const logoutLink = document.querySelector('a[href="/logout"]');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function () {
+                localStorage.removeItem('currentUser');
+                console.log('🔓 Sesión cerrada - localStorage limpiado');
+            });
+        }
+        }) ();
+    </script>
+</body>
+
+</html>

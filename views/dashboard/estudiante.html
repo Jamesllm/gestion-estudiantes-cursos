@@ -1,0 +1,146 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Mi Dashboard{% endblock %}
+{% block page_title %}Mi Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Card -->
+    <div class="card bg-white border border-slate-200 shadow-sm">
+        <div class="card-body">
+            <h2 class="card-title text-2xl text-slate-800">Bienvenido, {{ user.nombre }}</h2>
+            <p class="text-slate-600">Aquí puedes ver tus cursos y gestionar tus matrículas</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="stat bg-white shadow-sm rounded-lg border border-slate-200">
+            <div class="stat-figure text-blue-600">
+                <i class="fas fa-book-open text-3xl"></i>
+            </div>
+            <div class="stat-title text-slate-600 font-medium">Cursos Activos</div>
+            <div class="stat-value text-blue-600 text-3xl">{{ mis_cursos|length }}</div>
+            <div class="stat-desc text-slate-500">Cursos en los que estás matriculado</div>
+        </div>
+
+        <div class="stat bg-white shadow-sm rounded-lg border border-slate-200">
+            <div class="stat-figure text-indigo-600">
+                <i class="fas fa-certificate text-3xl"></i>
+            </div>
+            <div class="stat-title text-slate-600 font-medium">Total Créditos</div>
+            <div class="stat-value text-indigo-600 text-3xl">{{ stats.total_creditos if stats.total_creditos else 0 }}
+            </div>
+            <div class="stat-desc text-slate-500">Créditos acumulados</div>
+        </div>
+
+        <div class="stat bg-white shadow-sm rounded-lg border border-slate-200">
+            <div class="stat-figure text-emerald-600">
+                <i class="fas fa-chart-line text-3xl"></i>
+            </div>
+            <div class="stat-title text-slate-600 font-medium">Progreso</div>
+            <div class="stat-value text-emerald-600 text-3xl">
+                {% set completados = mis_cursos|selectattr('estado', 'equalto', 'completado')|list|length %}
+                {% if mis_cursos|length > 0 %}
+                {{ ((completados / mis_cursos|length) * 100)|round|int }}%
+                {% else %}
+                0%
+                {% endif %}
+            </div>
+            <div class="stat-desc text-slate-500">Cursos completados</div>
+        </div>
+    </div>
+
+    <!-- Mis Cursos -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="card-title text-slate-800">
+                    <i class="fas fa-graduation-cap text-blue-600"></i>
+                    Mis Cursos
+                </h2>
+                <a href="/explorar-cursos" class="btn bg-blue-600 hover:bg-blue-700 text-white border-0 btn-sm gap-2">
+                    <i class="fas fa-plus"></i>
+                    Explorar Más Cursos
+                </a>
+            </div>
+
+            {% if mis_cursos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for curso in mis_cursos %}
+                <div class="card bg-slate-50 border border-slate-200 shadow-sm hover:shadow-md transition">
+                    <div class="card-body">
+                        <div class="flex items-start justify-between">
+                            <span class="badge bg-blue-100 text-blue-700 border-0">{{ curso.codigo }}</span>
+                            <span
+                                class="badge border-0 {% if curso.estado == 'activo' %}bg-emerald-100 text-emerald-700{% elif curso.estado == 'completado' %}bg-blue-100 text-blue-700{% else %}bg-slate-100 text-slate-600{% endif %}">
+                                {{ curso.estado }}
+                            </span>
+                        </div>
+                        <h3 class="card-title text-base mt-2 text-slate-800">{{ curso.nombre }}</h3>
+                        <p class="text-sm text-slate-600 line-clamp-2">{{ curso.descripcion if curso.descripcion else
+                            'Sin descripción' }}</p>
+
+                        <div class="divider my-2"></div>
+
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center gap-2 text-slate-600">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ curso.fecha_matricula }}</span>
+                            </div>
+                            <div class="badge bg-amber-100 text-amber-700 border-0 gap-2">
+                                <i class="fas fa-star"></i>
+                                {{ curso.creditos }} créditos
+                            </div>
+                        </div>
+
+                        <div class="card-actions justify-end mt-4">
+                            <button class="btn btn-sm bg-slate-100 hover:bg-slate-200 text-slate-700 border-0 gap-2">
+                                <i class="fas fa-eye"></i>
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-book-open text-6xl text-slate-300 mb-4"></i>
+                <p class="text-slate-500 text-lg">No estás matriculado en ningún curso aún</p>
+                <a href="/explorar-cursos" class="btn bg-blue-600 hover:bg-blue-700 text-white border-0 mt-4 gap-2">
+                    <i class="fas fa-search"></i>
+                    Explorar Cursos Disponibles
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Timeline de Actividades Recientes -->
+    <div class="card bg-white shadow-sm border border-slate-200">
+        <div class="card-body">
+            <h2 class="card-title text-slate-800">
+                <i class="fas fa-history text-blue-600"></i>
+                Actividad Reciente
+            </h2>
+            <ul class="timeline timeline-vertical">
+                {% for curso in mis_cursos[:5] %}
+                <li>
+                    <div class="timeline-start text-slate-600">{{ curso.fecha_matricula }}</div>
+                    <div class="timeline-middle">
+                        <i class="fas fa-check-circle text-emerald-600"></i>
+                    </div>
+                    <div class="timeline-end timeline-box bg-slate-50 border-slate-200">
+                        <strong class="text-slate-800">Matriculado en:</strong> <span class="text-slate-600">{{
+                            curso.nombre }}</span>
+                    </div>
+                    {% if not loop.last %}
+                    <hr class="bg-slate-200" />{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
