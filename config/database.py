@@ -3,8 +3,8 @@ from contextlib import contextmanager
 
 DB_CONFIG = {
     'host': 'localhost',
-    'user': 'root',
-    'password': '123456789',
+    'user': 'admin',
+    'password': 'admin',
     'database': 'sistema_educativo',
     'charset': 'utf8mb4',
     'collation': 'utf8mb4_unicode_ci'

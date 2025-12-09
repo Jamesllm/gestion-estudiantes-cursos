@@ -13,7 +13,6 @@ import re
 import json
 import uuid
 
-# Almacenamiento simple de sesiones (en producción usar Redis/Memcached)
 sessions = {}
 
 
